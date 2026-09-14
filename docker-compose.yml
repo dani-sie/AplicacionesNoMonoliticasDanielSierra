@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: hda
+      POSTGRES_USER: hda
+      POSTGRES_PASSWORD: hda
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data", "./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro"]
+  pulsar:
+    image: apachepulsar/pulsar:3.3.2
+    command: bin/pulsar standalone
+    ports: ["6650:6650", "8080:8080"]
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://hda:hda@postgres:5432/hda
+      PULSAR_URL: pulsar://pulsar:6650
+    ports: ["8000:8000"]
+    depends_on: [postgres, pulsar]
+  outbox-relay:
+    build: .
+    command: ["python", "-m", "app.infrastructure.messaging.outbox_relay"]
+    environment:
+      DATABASE_URL: postgresql://hda:hda@postgres:5432/hda
+      PULSAR_URL: pulsar://pulsar:6650
+    depends_on: [postgres, pulsar]
+  event-consumer:
+    build: .
+    command: ["python", "-m", "app.orchestration.pulsar_consumer"]
+    environment:
+      DATABASE_URL: postgresql://hda:hda@postgres:5432/hda
+      PULSAR_URL: pulsar://pulsar:6650
+    depends_on: [postgres, pulsar]
+volumes:
+  pgdata:

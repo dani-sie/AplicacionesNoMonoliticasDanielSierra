@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#405466"/>
+    </marker>
+    <style>
+      .title { font: 700 34px Arial, sans-serif; fill: #1d2d3a; }
+      .subtitle { font: 400 18px Arial, sans-serif; fill: #607080; }
+      .label { font: 700 20px Arial, sans-serif; fill: #1d2d3a; }
+      .small { font: 400 17px Arial, sans-serif; fill: #334756; }
+      .tiny { font: 400 15px Arial, sans-serif; fill: #607080; }
+      .box { stroke: #405466; stroke-width: 2.5; rx: 14; }
+      .implemented { fill: #eaf2fb; }
+      .infra { fill: #f1f3f5; }
+      .event { fill: #e9f5ee; }
+      .external { fill: #fff5e6; }
+      .future { fill: #ffffff; stroke-dasharray: 9 7; }
+      .line { stroke: #405466; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .dashed { stroke-dasharray: 9 7; }
+      .focus { fill: none; stroke: #c94c4c; stroke-width: 3; stroke-dasharray: 8 6; rx: 18; }
+          .flow { font: 400 14px Arial, sans-serif; fill: #334756; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="#ffffff"/>
+  <text x="70" y="68" class="title">ESC-03 · Recuperación paralela de eventos</text>
+  <text x="70" y="101" class="subtitle">Escalabilidad · reprocesamiento del backlog sin detener la operación</text>
+
+  <text x="70" y="164" class="tiny">ENTRADAS</text>
+  <rect x="70" y="185" width="220" height="82" class="box external"/>
+  <text x="180" y="220" text-anchor="middle" class="label">Aplicación móvil</text>
+  <text x="180" y="247" text-anchor="middle" class="small">proveedor</text>
+  <rect x="70" y="295" width="220" height="82" class="box external"/>
+  <text x="180" y="330" text-anchor="middle" class="label">Centros de atención</text>
+  <text x="180" y="357" text-anchor="middle" class="small">carga y seguimiento</text>
+  <rect x="70" y="405" width="220" height="82" class="box external"/>
+  <text x="180" y="440" text-anchor="middle" class="label">Clientes</text>
+  <text x="180" y="467" text-anchor="middle" class="small">consulta de estado</text>
+
+  <text x="390" y="164" class="tiny">SERVICIO IMPLEMENTADO</text>
+  <rect x="390" y="220" width="390" height="300" class="box implemented"/>
+  <text x="585" y="266" text-anchor="middle" class="label">Gestión de Trabajos</text>
+  <line x1="420" y1="285" x2="750" y2="285" stroke="#9bb4cc" stroke-width="1.5"/>
+  <rect x="430" y="315" width="310" height="70" class="box" fill="#ffffff"/>
+  <text x="585" y="346" text-anchor="middle" class="label">API HTTP</text>
+  <text x="585" y="370" text-anchor="middle" class="small">comandos y consultas CQS</text>
+  <rect x="430" y="410" width="310" height="70" class="box" fill="#ffffff"/>
+  <text x="585" y="441" text-anchor="middle" class="label">Dominio Work</text>
+  <text x="585" y="465" text-anchor="middle" class="small">agregado y reglas de negocio</text>
+
+  <text x="390" y="594" class="tiny">PERSISTENCIA Y EVENTOS</text>
+  <rect x="390" y="620" width="250" height="100" class="box infra"/>
+  <text x="515" y="662" text-anchor="middle" class="label">PostgreSQL</text>
+  <text x="515" y="690" text-anchor="middle" class="small">Work + Outbox</text>
+  <rect x="690" y="620" width="250" height="100" class="box event"/>
+  <text x="815" y="662" text-anchor="middle" class="label">Apache Pulsar</text>
+  <text x="815" y="690" text-anchor="middle" class="small">particiones + offsets</text>
+  <rect x="990" y="620" width="250" height="100" class="box implemented"/>
+  <text x="1115" y="662" text-anchor="middle" class="label">Orchestration</text>
+  <text x="1115" y="690" text-anchor="middle" class="small">reprocesamiento paralelo</text>
+
+  <text x="990" y="164" class="tiny">EVOLUCIÓN ENTREGAS 4 Y 5</text>
+  <rect x="990" y="220" width="250" height="82" class="box future"/>
+  <text x="1115" y="254" text-anchor="middle" class="label">Asignación</text>
+  <text x="1115" y="280" text-anchor="middle" class="small">de proveedores</text>
+  <rect x="1270" y="220" width="250" height="82" class="box future"/>
+  <text x="1395" y="254" text-anchor="middle" class="label">Aprobación</text>
+  <text x="1395" y="280" text-anchor="middle" class="small">partner y siniestros</text>
+  <rect x="990" y="335" width="250" height="82" class="box future"/>
+  <text x="1115" y="369" text-anchor="middle" class="label">Pagos</text>
+  <text x="1115" y="395" text-anchor="middle" class="small">y compensaciones</text>
+  <rect x="1270" y="335" width="250" height="82" class="box future"/>
+  <text x="1395" y="369" text-anchor="middle" class="label">BFF</text>
+  <text x="1395" y="395" text-anchor="middle" class="small">Saga y API externa</text>
+
+  <path d="M290 226 C330 226 340 330 390 350" class="line"/>
+  <path d="M290 336 L390 365" class="line"/>
+  <path d="M290 446 C330 446 340 430 390 430" class="line"/>
+  <path d="M585 520 L515 620" class="line"/>
+  <path d="M640 670 L690 670" class="line"/>
+  <path d="M940 670 L990 670" class="line"/>
+  <path d="M815 620 C815 540 1115 540 1115 417" class="line dashed"/>
+  <path d="M1240 261 L1270 261" class="line dashed"/>
+  <path d="M1115 302 L1115 335" class="line dashed"/>
+  <path d="M1240 376 L1270 376" class="line dashed"/>
+
+  <rect x="378" y="307" width="414" height="216" class="focus"/>
+  <rect x="678" y="609" width="274" height="122" class="focus"/>
+  <rect x="978" y="609" width="274" height="122" class="focus"/>
+  <text x="70" y="565" class="tiny" fill="#c94c4c">ESC-03: componentes involucrados en la recuperación del backlog</text>
+
+  <rect x="70" y="735" width="1450" height="125" rx="10" fill="#f7f9fb" stroke="#c7d3df" stroke-width="1.5"/>
+  <text x="92" y="760" class="tiny">EXPLICACIÓN</text>
+  <text x="92" y="784" class="small">Después de una interrupción del broker, Apache Pulsar conserva los eventos pendientes y permite conocer el avance mediante offsets persistidos.</text>
+  <text x="92" y="805" class="small">Los tópicos particionados y los consumer groups distribuyen el backlog entre varias instancias de Orchestration para procesarlo en paralelo.</text>
+  <text x="92" y="826" class="small">Mientras se recuperan los eventos antiguos, la API y el agregado Work continúan aceptando nuevos trabajos sin detener la operación normal.</text>
+  <text x="92" y="847" class="small">La idempotencia, las claves por agregado, los límites de reintento y la DLQ evitan duplicidades y permiten controlar el reprocesamiento.</text>
+
+  <rect x="70" y="870" width="20" height="20" fill="#eaf2fb" stroke="#405466" stroke-width="2"/>
+  <text x="102" y="886" class="small">Implementado en Entrega 3</text>
+  <rect x="350" y="870" width="20" height="20" class="future"/>
+  <text x="382" y="886" class="small">Preparado para Entrega 4 o 5</text>
+  <line x1="720" y1="880" x2="770" y2="880" class="line dashed"/>
+  <text x="785" y="886" class="small">Evento o evolución futura</text>
+<g id="scenario-flow">
+    <rect x="970" y="444" width="570" height="140" rx="14" fill="#f7f9fb" stroke="#c3d1dc" stroke-width="2"/>
+    <text x="990" y="473" class="tiny">FLUJO DEL ESCENARIO</text>
+    <rect x="990" y="505" width="112" height="56" rx="10" fill="#eef4fa" stroke="#6d8497" stroke-width="2"/>
+      <text x="1046" y="529" text-anchor="middle" class="flow">100.000 eventos</text><line x1="1102" y1="533" x2="1117" y2="533" stroke="#405466" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="1125" y="505" width="112" height="56" rx="10" fill="#eef4fa" stroke="#6d8497" stroke-width="2"/>
+      <text x="1181" y="529" text-anchor="middle" class="flow">Offsets</text><line x1="1237" y1="533" x2="1252" y2="533" stroke="#405466" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="1260" y="505" width="112" height="56" rx="10" fill="#eef4fa" stroke="#6d8497" stroke-width="2"/>
+      <text x="1316" y="529" text-anchor="middle" class="flow">Consumer groups</text><line x1="1372" y1="533" x2="1387" y2="533" stroke="#405466" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="1395" y="505" width="112" height="56" rx="10" fill="#eef4fa" stroke="#6d8497" stroke-width="2"/>
+      <text x="1451" y="529" text-anchor="middle" class="flow">Error máximo 1%</text>
+    <text x="990" y="578" class="small">Meta: 100.000 eventos · menos de 1% de errores</text>
+  </g>
+</svg>

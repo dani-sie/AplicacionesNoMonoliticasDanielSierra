@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "hda.events.work-created.v1",
+  "title": "WorkCreated",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["work_id", "source", "category", "urgency", "city", "partner_id", "occurred_at"],
+  "properties": {
+    "work_id": {"type": "string", "format": "uuid"},
+    "source": {"type": "string", "enum": ["MARKETPLACE", "CLAIM"]},
+    "category": {"type": "string", "minLength": 1},
+    "urgency": {"type": "string", "enum": ["LOW", "MEDIUM", "HIGH"]},
+    "city": {"type": "string", "minLength": 1},
+    "partner_id": {"type": "string", "minLength": 1},
+    "occurred_at": {"type": "string", "format": "date-time"}
+  }
+}
