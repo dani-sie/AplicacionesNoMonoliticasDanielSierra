@@ -27,6 +27,20 @@ CREATE TABLE IF NOT EXISTS orchestration_audit (
   occurred_at TIMESTAMPTZ NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS saga_log (
+  id BIGSERIAL PRIMARY KEY,
+  saga_id UUID NOT NULL,
+  work_id UUID NOT NULL,
+  step TEXT NOT NULL,
+  action TEXT NOT NULL,
+  status TEXT NOT NULL,
+  details JSONB NOT NULL DEFAULT '{}'::jsonb,
+  occurred_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS saga_log_saga_id_idx ON saga_log (saga_id, occurred_at);
+CREATE INDEX IF NOT EXISTS saga_log_work_id_idx ON saga_log (work_id, occurred_at);
+
 -- Each service owns its tables. The POC shares a PostgreSQL cluster only to
 -- keep the local deployment small; services never query another service table.
 CREATE TABLE IF NOT EXISTS provider_assignments (

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hda.example/contracts/cancel_provider_assignment_command.v1.json",
+  "title": "CancelProviderAssignmentCommand.v1",
+  "type": "object",
+  "required": ["saga_id", "work_id", "reason"],
+  "properties": {
+    "saga_id": {"type": "string", "format": "uuid"},
+    "work_id": {"type": "string", "format": "uuid"},
+    "reason": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}
