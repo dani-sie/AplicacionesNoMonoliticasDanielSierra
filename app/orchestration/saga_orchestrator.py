@@ -16,6 +16,7 @@ APPROVAL_GRANTED = "persistent://public/default/hda-approval-granted-v1"
 AUTHORIZE_PAYMENT = "persistent://public/default/hda-authorize-payment-command-v1"
 PAYMENT_AUTHORIZED = "persistent://public/default/hda-payment-authorized-v1"
 CANCEL_ASSIGNMENT = "persistent://public/default/hda-cancel-provider-assignment-command-v1"
+ASSIGNMENT_CANCELLED = "persistent://public/default/hda-provider-assignment-cancelled-v1"
 
 
 def record(conn, saga_id, work_id, step, action, status, details=None):
@@ -37,6 +38,7 @@ def main() -> None:
         for topic, name in {
             WORK_CREATED: "created", PROVIDER_ASSIGNED: "assigned",
             APPROVAL_GRANTED: "approved", PAYMENT_AUTHORIZED: "paid",
+            ASSIGNMENT_CANCELLED: "compensated",
         }.items()
     }
     producers = {
@@ -86,6 +88,9 @@ def main() -> None:
                     elif topic == PAYMENT_AUTHORIZED:
                         record(conn, saga_id, work_id, "PAYMENT", "EVENT_RECEIVED", "COMPLETED")
                         record(conn, saga_id, work_id, "SAGA", "TRANSACTION_COMPLETED", "COMPLETED")
+                    elif topic == ASSIGNMENT_CANCELLED:
+                        record(conn, saga_id, work_id, "ASSIGN_PROVIDER", "COMPENSATION_COMPLETED", "COMPENSATED")
+                        record(conn, saga_id, work_id, "SAGA", "TRANSACTION_COMPENSATED", "COMPENSATED")
                 consumer.acknowledge(message)
     finally:
         for producer in producers.values():

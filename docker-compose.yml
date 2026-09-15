@@ -53,5 +53,12 @@ services:
       DATABASE_URL: postgresql://hda:hda@postgres:5432/hda
       PULSAR_URL: pulsar://pulsar:6650
     depends_on: [postgres, pulsar]
+  provider-compensation:
+    build: .
+    command: ["python", "-m", "services.provider_assignment.compensation_worker"]
+    environment:
+      DATABASE_URL: postgresql://hda:hda@postgres:5432/hda
+      PULSAR_URL: pulsar://pulsar:6650
+    depends_on: [postgres, pulsar]
 volumes:
   pgdata:
