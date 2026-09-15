@@ -198,6 +198,12 @@ La siguiente evolución agregará el BFF HTTP, resultados cuantitativos de exper
 
 Este POC no incluye conectores reales con CRM, pasarela de pagos, certificadoras o ERP; despliegue externo; pruebas de carga distribuidas; observabilidad productiva ni una Saga completa. Esas capacidades se implementarán o validarán en las entregas posteriores.
 
+## Entrega 5
+
+La POC implementa una Saga orquestada sobre Apache Pulsar, con Saga Log persistente en PostgreSQL, compensación de la asignación de proveedores y un BFF REST público. La evidencia de una transacción exitosa y una transacción compensada está documentada en [Experimentos Entrega 5](docs/experimentos_entrega_5.md).
+
+El BFF está disponible en `http://136.112.169.107:8001/docs`. La colección para probarlo se encuentra en [Postman](postman/Entrega5-Saga-BFF.postman_collection.json). La URL depende de que la VM de Google Cloud esté encendida.
+
 ## Artefactos
 
 - [Presentación PPTX](outputs/Entrega3DanielSierra_entrega3_completa.pptx)
