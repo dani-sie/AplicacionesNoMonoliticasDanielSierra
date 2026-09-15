@@ -12,12 +12,22 @@ OUTPUT_TOPIC = "persistent://public/default/hda-provider-assigned-v1"
 APPROVAL_COMMAND_TOPIC = "persistent://public/default/hda-approve-claim-command-v1"
 
 
+def ensure_table(database_url: str) -> None:
+    while True:
+        try:
+            with psycopg.connect(database_url) as conn:
+                conn.execute("CREATE TABLE IF NOT EXISTS provider_assignments (work_id UUID PRIMARY KEY, provider_id TEXT NOT NULL, status TEXT NOT NULL, occurred_at TIMESTAMPTZ NOT NULL)")
+                conn.commit()
+            return
+        except psycopg.OperationalError as exc:
+            print(f"provider service waiting for database: {exc}", flush=True)
+            time.sleep(3)
+
+
 def main() -> None:
     database_url = os.environ["DATABASE_URL"]
     pulsar_url = os.environ["PULSAR_URL"]
-    with psycopg.connect(database_url) as conn:
-        conn.execute("CREATE TABLE IF NOT EXISTS provider_assignments (work_id UUID PRIMARY KEY, provider_id TEXT NOT NULL, status TEXT NOT NULL, occurred_at TIMESTAMPTZ NOT NULL)")
-        conn.commit()
+    ensure_table(database_url)
     while True:
         client = None
         consumer = None
