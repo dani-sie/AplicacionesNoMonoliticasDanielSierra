@@ -10,6 +10,15 @@ flowchart LR
   Outbox --> Relay[Outbox relay]
   Relay --> Broker[Apache Pulsar\npublic/default/hda-work-created-v1]
   Broker --> Audit[Orchestration module\nEvent consumer]
+  Broker --> AssignCommand[AssignProviderCommand.v1]
+  AssignCommand --> Provider[Provider Assignment\nconsumer + CRUD]
+  Provider --> ProviderEvent[ProviderAssigned.v1]
+  ProviderEvent --> ApproveCommand[ApproveClaimCommand.v1]
+  ApproveCommand --> Approval[Claim Approval\nconsumer + CRUD]
+  Approval --> ApprovalEvent[ApprovalGranted.v1]
+  ApprovalEvent --> PaymentCommand[AuthorizePaymentCommand.v1]
+  PaymentCommand --> Payment[Payment Compensation\nconsumer + CRUD]
+  Payment --> PaymentEvent[PaymentAuthorized.v1]
   Audit --> AuditDB[(PostgreSQL\nAudit projection)]
   Query[Query handler] --> Repo
 ```

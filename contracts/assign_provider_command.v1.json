@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hda.example/contracts/assign_provider_command.v1.json",
+  "title": "AssignProviderCommand.v1",
+  "type": "object",
+  "required": ["work_id", "partner_id"],
+  "properties": {
+    "work_id": {"type": "string", "format": "uuid"},
+    "partner_id": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": true
+}

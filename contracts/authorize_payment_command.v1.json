@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hda.example/contracts/authorize_payment_command.v1.json",
+  "title": "AuthorizePaymentCommand.v1",
+  "type": "object",
+  "required": ["work_id"],
+  "properties": {
+    "work_id": {"type": "string", "format": "uuid"}
+  },
+  "additionalProperties": false
+}

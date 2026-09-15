@@ -32,5 +32,26 @@ services:
       DATABASE_URL: postgresql://hda:hda@postgres:5432/hda
       PULSAR_URL: pulsar://pulsar:6650
     depends_on: [postgres, pulsar]
+  provider-assignment:
+    build: .
+    command: ["python", "-m", "services.provider_assignment.worker"]
+    environment:
+      DATABASE_URL: postgresql://hda:hda@postgres:5432/hda
+      PULSAR_URL: pulsar://pulsar:6650
+    depends_on: [postgres, pulsar]
+  claim-approval:
+    build: .
+    command: ["python", "-m", "services.claim_approval.worker"]
+    environment:
+      DATABASE_URL: postgresql://hda:hda@postgres:5432/hda
+      PULSAR_URL: pulsar://pulsar:6650
+    depends_on: [postgres, pulsar]
+  payment-compensation:
+    build: .
+    command: ["python", "-m", "services.payment_compensation.worker"]
+    environment:
+      DATABASE_URL: postgresql://hda:hda@postgres:5432/hda
+      PULSAR_URL: pulsar://pulsar:6650
+    depends_on: [postgres, pulsar]
 volumes:
   pgdata:

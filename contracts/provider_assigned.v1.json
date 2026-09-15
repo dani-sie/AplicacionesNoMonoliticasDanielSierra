@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hda.example/contracts/provider_assigned.v1.json",
+  "title": "ProviderAssigned.v1",
+  "type": "object",
+  "required": ["work_id", "provider_id", "status"],
+  "properties": {
+    "work_id": {"type": "string", "format": "uuid"},
+    "provider_id": {"type": "string", "minLength": 1},
+    "status": {"const": "ASSIGNED"}
+  },
+  "additionalProperties": false
+}

@@ -26,3 +26,25 @@ CREATE TABLE IF NOT EXISTS orchestration_audit (
   event_type TEXT NOT NULL,
   occurred_at TIMESTAMPTZ NOT NULL
 );
+
+-- Each service owns its tables. The POC shares a PostgreSQL cluster only to
+-- keep the local deployment small; services never query another service table.
+CREATE TABLE IF NOT EXISTS provider_assignments (
+  work_id UUID PRIMARY KEY,
+  provider_id TEXT NOT NULL,
+  status TEXT NOT NULL,
+  occurred_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS claim_approvals (
+  work_id UUID PRIMARY KEY,
+  provider_id TEXT NOT NULL,
+  status TEXT NOT NULL,
+  occurred_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS payments (
+  work_id UUID PRIMARY KEY,
+  status TEXT NOT NULL,
+  occurred_at TIMESTAMPTZ NOT NULL
+);

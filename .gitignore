@@ -6,3 +6,4 @@ venv/
 .env
 *.inspect.ndjson
 ~$*
+node_modules/

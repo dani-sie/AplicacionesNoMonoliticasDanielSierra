@@ -1,18 +1,18 @@
-# Entrega 3: diseño de experimentación
+# Entrega 4: POC de arquitectura basada en eventos
 
-POC técnico para el caso de estudio **Hogar de los Alpes**. El servicio implementado representa la capacidad inicial de **Gestión de Trabajos** y prepara la evolución hacia asignación de proveedores, aprobación y pagos.
+POC técnico para el caso de estudio **Hogar de los Alpes**. La solución implementa una cadena mínima de microservicios para **Gestión de Trabajos**, **Asignación de Proveedores**, **Aprobación de Siniestros** y **Pagos/Compensaciones**, comunicados por comandos y eventos asíncronos sobre Apache Pulsar.
 
 Esta carpeta es autónoma y contiene exclusivamente los artefactos técnicos de la entrega. El contenido académico de la materia se conserva por separado.
 
 ## Objetivo
 
-Construir una base ejecutable para experimentar con tres atributos de calidad relevantes para el negocio:
+Construir una base ejecutable para experimentar con tres atributos de calidad relevantes para el negocio y cubrir el alcance parcial de la Entrega 4:
 
 - **Disponibilidad:** el trabajo puede continuar ante desconexiones, rechazos y fallos temporales de notificación.
 - **Escalabilidad:** el procesamiento de trabajos, consultas y eventos puede crecer sin convertir el flujo en una operación bloqueante.
 - **Modificabilidad:** los cambios de priorización, notificación y almacenamiento documental deben aislarse del dominio.
 
-La entrega no pretende implementar todo el negocio. Su objetivo es dejar implementados los límites arquitecturales, el flujo mínimo de comandos y consultas, la persistencia y la comunicación por eventos que permitirán experimentar en las siguientes entregas.
+La entrega no pretende implementar todo el negocio. Su objetivo es dejar implementados los límites arquitecturales, el flujo mínimo de comandos y consultas, la persistencia y la comunicación por eventos que permitirán experimentar y evolucionar hacia Saga, BFF y compensaciones en la Entrega 5.
 
 ## Escenarios de calidad
 
@@ -35,6 +35,7 @@ La solución usa un contexto acotado de Gestión de Trabajos y una arquitectura 
 - **Infraestructura:** adaptador de persistencia PostgreSQL, outbox transaccional y relay hacia Apache Pulsar.
 - **Orquestación:** consumidor independiente del dominio que reacciona al evento y registra una auditoría.
 - **Interfaces:** API HTTP con `POST /works` y `GET /works/{id}`.
+- **Servicios de negocio:** Asignación de Proveedores, Aprobación de Siniestros y Pagos/Compensaciones consumen eventos de forma independiente y persisten sus propios modelos.
 
 El dominio no depende de FastAPI, PostgreSQL ni Pulsar. La comunicación entre módulos se realiza mediante el evento de dominio, no mediante llamadas directas entre sus agregados.
 
@@ -48,10 +49,31 @@ POST /works
   -> outbox-relay
   -> Apache Pulsar
   -> event-consumer
-  -> orchestration_audit
+  -> AssignProviderCommand.v1
+  -> provider-assignment
+  -> ProviderAssigned.v1 + ApproveClaimCommand.v1
+  -> claim-approval
+  -> ApprovalGranted.v1 + AuthorizePaymentCommand.v1
+  -> payment-compensation
+  -> PaymentAuthorized.v1
 ```
 
-El diagrama completo está en [docs/architecture.md](docs/architecture.md).
+El diagrama completo está en [docs/architecture.md](docs/architecture.md). Las decisiones de mensajería y almacenamiento están en [docs/eventos_y_contratos.md](docs/eventos_y_contratos.md) y [docs/topologia_de_datos.md](docs/topologia_de_datos.md).
+
+## Alcance de Entrega 4
+
+| Requisito | Evidencia |
+|---|---|
+| Mínimo cuatro microservicios en Python | `api`, `provider-assignment`, `claim-approval`, `payment-compensation` |
+| Comunicación asíncrona por Apache Pulsar | `docker-compose.yml`, workers en `services/`, contratos en `contracts/` |
+| Comandos y eventos | `AssignProviderCommand.v1`, `ApproveClaimCommand.v1`, `AuthorizePaymentCommand.v1`, `WorkCreated.v1`, `ProviderAssigned.v1`, `ApprovalGranted.v1`, `PaymentAuthorized.v1` |
+| Consulta síncrona solo para lectura | `GET /works/{work_id}` |
+| Persistencia en al menos cuatro servicios | Tablas `works`, `provider_assignments`, `claim_approvals`, `payments` |
+| CQS | `POST /works` como comando y `GET /works/{id}` como consulta |
+| Decisiones de eventos, esquema y versionamiento | [docs/eventos_y_contratos.md](docs/eventos_y_contratos.md) |
+| Topología de datos | [docs/topologia_de_datos.md](docs/topologia_de_datos.md) |
+| Escenarios de calidad seleccionados para validar | [docs/experimentos_entrega_4.md](docs/experimentos_entrega_4.md) |
+| Actividades de la entrega individual | [docs/actividades_equipo.md](docs/actividades_equipo.md) |
 
 ## Servicios Docker
 
@@ -62,8 +84,13 @@ El diagrama completo está en [docs/architecture.md](docs/architecture.md).
 | `api` | Comandos y consultas HTTP | `8000` |
 | `outbox-relay` | Publicación de eventos pendientes | interno |
 | `event-consumer` | Consumo y auditoría de eventos | interno |
+| `provider-assignment` | Asignación de proveedores | interno |
+| `claim-approval` | Aprobación de siniestros | interno |
+| `payment-compensation` | Pagos y compensaciones | interno |
 
 El tópico utilizado por el POC es `persistent://public/default/hda-work-created-v1`.
+
+Los comandos viajan por `hda-assign-provider-command-v1`, `hda-approve-claim-command-v1` y `hda-authorize-payment-command-v1`. Sus respuestas son los eventos `ProviderAssigned.v1`, `ApprovalGranted.v1` y `PaymentAuthorized.v1`.
 
 ## Requisitos
 
@@ -118,6 +145,9 @@ docker compose exec postgres psql -U hda -d hda \
 
 docker compose exec postgres psql -U hda -d hda \
   -c "select work_id, event_type, occurred_at from orchestration_audit;"
+
+docker compose exec postgres psql -U hda -d hda \
+  -c "select count(*) as works from works; select count(*) as provider_assignments from provider_assignments; select count(*) as claim_approvals from claim_approvals; select count(*) as payments from payments;"
 ```
 
 La prueba manual validada para esta entrega confirma:
@@ -127,6 +157,7 @@ La prueba manual validada para esta entrega confirma:
 - `GET /works/{id}` recupera el agregado desde PostgreSQL.
 - El relay publica el evento en Pulsar.
 - El consumidor registra el evento en `orchestration_audit`.
+- Los servicios de asignación, aprobación y pagos consumen comandos, persisten sus modelos y publican eventos de respuesta.
 
 ## Estructura
 
@@ -137,11 +168,12 @@ app/
   infrastructure/      PostgreSQL, outbox, relay y Pulsar
   interfaces/          API HTTP
   orchestration/       Consumidor y reacción al evento
+services/              Microservicios de negocio independientes
 contracts/             Contratos versionados de eventos
 db/                    Esquema PostgreSQL
 docs/                  Matriz, arquitectura y diagramas
 tests/                 Pruebas automatizadas
-outputs/               PPTX y Excel de la entrega
+outputs/               PPTX y Excel de la Entrega 3
 ```
 
 ## Decisiones y trade-offs
@@ -154,9 +186,7 @@ outputs/               PPTX y Excel de la entrega
 
 ## Continuidad
 
-La Entrega 4 puede agregar los contextos de Asignación de Proveedores, Aprobación de Partner/Siniestros y Pagos/Compensaciones, cada uno con su persistencia, comandos y eventos.
-
-La Entrega 5 podrá coordinar `WorkCreated`, `ProviderAssigned`, `ApprovalGranted` y `PaymentAuthorized` mediante una Saga, Saga Log y BFF HTTP. Esos componentes no forman parte del alcance de esta entrega.
+La Entrega 5 podrá coordinar `WorkCreated`, `ProviderAssigned`, `ApprovalGranted` y `PaymentAuthorized` mediante una Saga, Saga Log y BFF HTTP. Esos componentes no forman parte del alcance parcial de esta entrega, pero los comandos y eventos actuales ya dejan los puntos de integración preparados.
 
 ## Limitaciones
 
@@ -168,6 +198,14 @@ Este POC no incluye conectores reales con CRM, pasarela de pagos, certificadoras
 - [Matriz Excel con diagramas](outputs/entrega_3_matriz_escenarios_calidad_con_diagramas.xlsx)
 - [Matriz en Markdown](docs/matriz_escenarios_calidad.md)
 - [Vista de arquitectura](docs/architecture.md)
+- [Eventos y contratos](docs/eventos_y_contratos.md)
+- [Topología de datos](docs/topologia_de_datos.md)
+- [Experimentos Entrega 4](docs/experimentos_entrega_4.md)
+- [Checklist Entrega 4](docs/entrega_4_checklist.md)
+- [Evidencia de ejecución](docs/evidencia_ejecucion.md)
+- [Actividades de la entrega individual](docs/actividades_equipo.md)
 - [Contrato `WorkCreated.v1`](contracts/work_created.v1.json)
+- Contratos `ProviderAssigned.v1`, `ApprovalGranted.v1` y `PaymentAuthorized.v1`.
+- Contratos de comandos `AssignProviderCommand.v1`, `ApproveClaimCommand.v1` y `AuthorizePaymentCommand.v1`.
 
 Al publicar el repositorio, agregar aquí el enlace público de GitHub.

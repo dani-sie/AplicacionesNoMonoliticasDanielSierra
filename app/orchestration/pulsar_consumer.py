@@ -10,6 +10,7 @@ from app.orchestration.consumer import WorkCreatedConsumer
 
 
 TOPIC = "persistent://public/default/hda-work-created-v1"
+COMMAND_TOPIC = "persistent://public/default/hda-assign-provider-command-v1"
 
 
 def main() -> None:
@@ -21,6 +22,7 @@ def main() -> None:
         try:
             client = pulsar.Client(pulsar_url)
             consumer = client.subscribe(TOPIC, subscription_name="orchestration-audit")
+            command_producer = client.create_producer(COMMAND_TOPIC)
             handler = WorkCreatedConsumer()
             while True:
                 message = consumer.receive(timeout_millis=1000)
@@ -33,6 +35,8 @@ def main() -> None:
                         (UUID(str(result["work_id"])), "WorkCreated.v1"),
                     )
                     conn.commit()
+                command_producer.send(json.dumps(event).encode())
+                command_producer.flush()
                 consumer.acknowledge(message)
         except pulsar.Timeout:
             continue

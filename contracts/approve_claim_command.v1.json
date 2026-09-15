@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hda.example/contracts/approve_claim_command.v1.json",
+  "title": "ApproveClaimCommand.v1",
+  "type": "object",
+  "required": ["work_id", "provider_id"],
+  "properties": {
+    "work_id": {"type": "string", "format": "uuid"},
+    "provider_id": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}
