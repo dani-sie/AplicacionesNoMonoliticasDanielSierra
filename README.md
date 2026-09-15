@@ -188,6 +188,8 @@ outputs/               PPTX y Excel de la Entrega 3
 
 La POC incluye una Saga orquestada para coordinar asignación, aprobación y pago. El orquestador registra cada paso en `saga_log`. En caso de fallo controlado en aprobación, publica una compensación que cancela la asignación y deja la transacción en estado `COMPENSATED`. La explicación y los comandos están en [docs/saga_entrega_5.md](docs/saga_entrega_5.md).
 
+El BFF REST está documentado en [docs/bff.md](docs/bff.md) y la colección está en [postman/Entrega5-Saga-BFF.postman_collection.json](postman/Entrega5-Saga-BFF.postman_collection.json).
+
 ## Continuidad
 
 La siguiente evolución agregará el BFF HTTP, resultados cuantitativos de experimentación y refinamiento de los diagramas arquitecturales.

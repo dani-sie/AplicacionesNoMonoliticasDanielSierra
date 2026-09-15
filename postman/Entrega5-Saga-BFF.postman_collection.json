@@ -1,0 +1,31 @@
+{
+  "info": {
+    "name": "Entrega 5 - Saga BFF",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "base_url", "value": "http://localhost:8001"},
+    {"key": "work_id", "value": ""}
+  ],
+  "item": [
+    {
+      "name": "Iniciar Saga",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"},
+          {"key": "Idempotency-Key", "value": "postman-saga-001"}
+        ],
+        "body": {"mode": "raw", "raw": "{\n  \"source\": \"CLAIM\",\n  \"category\": \"PLUMBING\",\n  \"urgency\": \"HIGH\",\n  \"city\": \"Bogota\",\n  \"partner_id\": \"partner-postman\"\n}"},
+        "url": {"raw": "{{base_url}}/api/v1/sagas/works", "host": ["{{base_url}}"], "path": ["api", "v1", "sagas", "works"]}
+      }
+    },
+    {
+      "name": "Consultar estado de Saga",
+      "request": {
+        "method": "GET",
+        "url": {"raw": "{{base_url}}/api/v1/sagas/{{work_id}}", "host": ["{{base_url}}"], "path": ["api", "v1", "sagas", "{{work_id}}"]}
+      }
+    }
+  ]
+}
