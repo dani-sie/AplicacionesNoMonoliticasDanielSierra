@@ -208,4 +208,4 @@ Este POC no incluye conectores reales con CRM, pasarela de pagos, certificadoras
 - Contratos `ProviderAssigned.v1`, `ApprovalGranted.v1` y `PaymentAuthorized.v1`.
 - Contratos de comandos `AssignProviderCommand.v1`, `ApproveClaimCommand.v1` y `AuthorizePaymentCommand.v1`.
 
-Al publicar el repositorio, agregar aquí el enlace público de GitHub.
+Repositorio público: https://github.com/dani-sie/AplicacionesNoMonoliticasDanielSierra
