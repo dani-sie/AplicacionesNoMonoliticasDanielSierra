@@ -9,7 +9,6 @@ import pulsar
 
 INPUT_TOPIC = "persistent://public/default/hda-approve-claim-command-v1"
 OUTPUT_TOPIC = "persistent://public/default/hda-approval-granted-v1"
-PAYMENT_COMMAND_TOPIC = "persistent://public/default/hda-authorize-payment-command-v1"
 
 
 def ensure_table(database_url: str) -> None:
@@ -35,7 +34,6 @@ def main() -> None:
             client = pulsar.Client(pulsar_url)
             consumer = client.subscribe(INPUT_TOPIC, subscription_name="claim-approval")
             producer = client.create_producer(OUTPUT_TOPIC)
-            payment_command_producer = client.create_producer(PAYMENT_COMMAND_TOPIC)
             while True:
                 try:
                     message = consumer.receive(timeout_millis=1000)
@@ -54,8 +52,6 @@ def main() -> None:
                 if inserted:
                     producer.send(json.dumps({"work_id": str(work_id), "provider_id": event["provider_id"], "status": "APPROVED"}).encode())
                     producer.flush()
-                    payment_command_producer.send(json.dumps({"work_id": str(work_id), "status": "REQUESTED"}).encode())
-                    payment_command_producer.flush()
                 consumer.acknowledge(message)
         except Exception as exc:
             print(f"claim approval service retry: {exc}", flush=True)
