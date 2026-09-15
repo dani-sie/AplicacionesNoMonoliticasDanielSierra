@@ -30,6 +30,16 @@ def main() -> None:
                     "UPDATE provider_assignments SET status='CANCELLED', occurred_at=NOW() WHERE work_id=%s",
                     (work_id,),
                 )
+                conn.execute(
+                    "INSERT INTO saga_log (saga_id, work_id, step, action, status, details) "
+                    "VALUES (%s, %s, 'ASSIGN_PROVIDER', 'COMPENSATION_COMPLETED', 'COMPENSATED', %s)",
+                    (UUID(command["saga_id"]), work_id, json.dumps({"reason": command["reason"]})),
+                )
+                conn.execute(
+                    "INSERT INTO saga_log (saga_id, work_id, step, action, status, details) "
+                    "VALUES (%s, %s, 'SAGA', 'TRANSACTION_COMPENSATED', 'COMPENSATED', %s)",
+                    (UUID(command["saga_id"]), work_id, json.dumps({"compensated_step": "ASSIGN_PROVIDER"})),
+                )
                 conn.commit()
             producer.send(json.dumps(command | {"status": "COMPENSATED"}).encode())
             producer.flush()
