@@ -2,21 +2,21 @@
 
 La Entrega 4 valida un escenario por cada atributo de calidad definido en la Entrega 3. Los escenarios elegidos son relevantes para la POC porque se pueden observar con la cadena actual de comandos, eventos, persistencia y consultas.
 
-## Escenario 1: `DISP-02` Reasignación ante rechazo del proveedor
+## Escenario 1: `DISP-01` Continuidad ante desconexión móvil
 
 | Campo | Definición |
 |---|---|
 | Atributo | Disponibilidad |
-| Hipótesis | Si la asignación y aprobación están desacopladas por eventos, un fallo temporal de un consumidor no impide que el trabajo quede aceptado y pueda continuar cuando el consumidor vuelva a estar disponible. |
-| Estímulo | Detener temporalmente `provider-assignment` o `claim-approval` después de crear trabajos. |
+| Hipótesis | Si la creación del trabajo usa idempotencia, outbox transaccional y procesamiento asíncrono, una desconexión temporal no genera operaciones duplicadas y el flujo puede continuar cuando se restablece la conectividad. |
+| Estímulo | Reenviar la misma solicitud de creación con la misma clave de idempotencia después de una interrupción o demora de conectividad. |
 | Ambiente | Operación local de la POC con Apache Pulsar y PostgreSQL. |
-| Artefacto | Servicios `api`, `outbox-relay`, `provider-assignment`, `claim-approval` y `payment-compensation`. |
-| Respuesta esperada | Los eventos quedan durables en Pulsar/outbox y el flujo continúa cuando el consumidor se recupera. |
-| Medida | El trabajo existe en `works`; al recuperar el consumidor, aparecen registros en `provider_assignments`, `claim_approvals` y `payments` sin recrear el trabajo. |
-| Decisiones arquitecturales | Comunicación asíncrona, outbox transaccional, consumidores idempotentes con `ON CONFLICT DO NOTHING`. |
-| Punto de sensibilidad | Retención de mensajes, política de suscripción, tiempo de recuperación del consumidor y unicidad por `work_id`. |
-| Trade-off | Aumenta la complejidad operativa frente a llamadas síncronas directas. |
-| Riesgo | Una mala configuración de retención o suscripciones puede perder eventos antes de que el consumidor vuelva. |
+| Artefacto | API de trabajos, outbox transaccional, relay y consumidores de negocio. |
+| Respuesta esperada | La solicitud se conserva, el evento se publica una vez y los consumidores completan el flujo sin duplicar registros. |
+| Medida | 0 operaciones duplicadas para la misma clave; una fila en `works`, `provider_assignments`, `claim_approvals` y `payments`. |
+| Decisiones arquitecturales | Idempotencia mediante clave de operación, outbox transaccional, eventos asíncronos y consumidores con `ON CONFLICT DO NOTHING`. |
+| Punto de sensibilidad | Persistencia de la clave de idempotencia, retención del mensaje y unicidad por `work_id`. |
+| Trade-off | Aumenta el almacenamiento temporal y la complejidad del seguimiento frente a una llamada síncrona directa. |
+| Riesgo | Reenvíos con claves diferentes pueden duplicar operaciones; se mitiga con validación de correlación y reglas de unicidad. |
 
 Consulta de evidencia:
 
