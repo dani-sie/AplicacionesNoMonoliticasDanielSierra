@@ -31,6 +31,7 @@ services:
     environment:
       DATABASE_URL: postgresql://hda:hda@postgres:5432/hda
       PULSAR_URL: pulsar://pulsar:6650
+      SAGA_FAIL_STEP: ${SAGA_FAIL_STEP:-}
     depends_on: [postgres, pulsar]
   provider-assignment:
     build: .
