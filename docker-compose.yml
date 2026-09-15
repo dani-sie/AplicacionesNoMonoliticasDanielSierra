@@ -27,7 +27,7 @@ services:
     depends_on: [postgres, pulsar]
   event-consumer:
     build: .
-    command: ["python", "-m", "app.orchestration.pulsar_consumer"]
+    command: ["python", "-m", "app.orchestration.saga_orchestrator"]
     environment:
       DATABASE_URL: postgresql://hda:hda@postgres:5432/hda
       PULSAR_URL: pulsar://pulsar:6650
