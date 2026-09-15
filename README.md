@@ -184,9 +184,13 @@ outputs/               PPTX y Excel de la Entrega 3
 - **Arquitectura hexagonal/cebolla:** protege el dominio frente a cambios de infraestructura. Aumenta la cantidad de interfaces y adaptadores.
 - **Idempotencia:** permite reintentos seguros, a cambio de conservar una clave única por operación.
 
+## Saga de Entrega 5
+
+La POC incluye una Saga orquestada para coordinar asignación, aprobación y pago. El orquestador registra cada paso en `saga_log`. En caso de fallo controlado en aprobación, publica una compensación que cancela la asignación y deja la transacción en estado `COMPENSATED`. La explicación y los comandos están en [docs/saga_entrega_5.md](docs/saga_entrega_5.md).
+
 ## Continuidad
 
-La Entrega 5 podrá coordinar `WorkCreated`, `ProviderAssigned`, `ApprovalGranted` y `PaymentAuthorized` mediante una Saga, Saga Log y BFF HTTP. Esos componentes no forman parte del alcance parcial de esta entrega, pero los comandos y eventos actuales ya dejan los puntos de integración preparados.
+La siguiente evolución agregará el BFF HTTP, resultados cuantitativos de experimentación y refinamiento de los diagramas arquitecturales.
 
 ## Limitaciones
 
@@ -204,6 +208,7 @@ Este POC no incluye conectores reales con CRM, pasarela de pagos, certificadoras
 - [Checklist Entrega 4](docs/entrega_4_checklist.md)
 - [Evidencia de ejecución](docs/evidencia_ejecucion.md)
 - [Actividades de la entrega individual](docs/actividades_equipo.md)
+- [Saga y compensación](docs/saga_entrega_5.md)
 - [Contrato `WorkCreated.v1`](contracts/work_created.v1.json)
 - Contratos `ProviderAssigned.v1`, `ApprovalGranted.v1` y `PaymentAuthorized.v1`.
 - Contratos de comandos `AssignProviderCommand.v1`, `ApproveClaimCommand.v1` y `AuthorizePaymentCommand.v1`.
